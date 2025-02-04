@@ -6,10 +6,22 @@ wss.on("connection", (ws) => {
     console.log("Client connected");
 
     ws.on("message", (message) => {
-        console.log("Received:", message);
+        try {
+            const data = JSON.parse(message); // Parse incoming JSON data
+            console.log("Received:", data);
+
+            // Broadcast the parsed data to all connected clients
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(data)); // Send as a stringified JSON
+                }
+            });
+
+        } catch (error) {
+            console.error("Error parsing message:", error);
+        }
     });
 
-    ws.send(JSON.stringify({ message: "Welcome to the WebSocket server!" }));
     
 });
 
